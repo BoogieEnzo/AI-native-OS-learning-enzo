@@ -1,71 +1,95 @@
-//! 第一章：应用程序与基本执行环境
-//!
-//! 心智模型（先有个整体印象）：  
-//! 1. 裸机编程就是：CPU 上电后什么都没有，我们自己告诉它「从哪条指令开始跑、栈放在哪」。  
-//! 2. 这份代码做的事只有三步：准备一块内存当栈 → 把栈指针 sp 指到那块内存 → 跳到 `rust_main` 打印字符串并通过 SBI 关机。  
-//! 3. 代码里大量 `#![...]` / `#[...]` 都是**给编译器/链接器看的说明书**，控制「不使用标准库、入口放在哪个段、在什么架构下生效」等，不会直接变成 CPU 指令。
+//! # 第一章：应用程序与基本执行环境
 //!
 //! 本章实现了一个最简单的 RISC-V S 态裸机程序，展示操作系统的最小执行环境。
-#![no_std]  // crate 级属性：不使用 Rust 标准库（std），因为裸机环境没有操作系统支持，只能使用核心库（core）；这是编译期指令，不会生成机器码
-#![no_main]  // crate 级属性：不生成默认的 main 入口，而是由我们自己提供入口 _start；同样只是告诉编译器怎么处理入口
-#![cfg_attr(target_arch = "riscv64", deny(warnings, missing_docs))]  // 根据条件添加属性：在 riscv64 架构下，开启严格检查（有警告就当错误、缺文档也报错）
-#![cfg_attr(not(target_arch = "riscv64"), allow(dead_code))]  // 在非 riscv64 架构下，允许未使用的代码存在（因为 stub 占位实现只为通过编译）
+//!
+//! ## 关键概念
+//!
+//! - `#![no_std]`：不使用 Rust 标准库，改用不依赖操作系统的核心库 `core`
+//! - `#![no_main]`：不使用标准的 `main` 入口，自定义裸函数 `_start` 作为入口
+//! - 裸函数（naked function）：不生成函数序言/尾声，可在无栈环境下执行
+//! - SBI（Supervisor Binary Interface）：S 态软件向 M 态固件请求服务的标准接口
 
-use tg_sbi;  // 导入 tg_sbi crate，这是一个提供 SBI（Supervisor Binary Interface）接口的库，用于与底层硬件交互
+// 不使用标准库，因为裸机环境没有操作系统提供系统调用支持
+#![no_std]
+// 不使用标准入口，因为裸机环境没有 C runtime 进行初始化
+#![no_main]
+// RISC-V64 架构下启用严格警告和文档检查
+#![cfg_attr(target_arch = "riscv64", deny(warnings, missing_docs))]
+// 非 RISC-V64 架构允许死代码（用于 cargo publish --dry-run 在主机上通过编译）
+#![cfg_attr(not(target_arch = "riscv64"), allow(dead_code))]
 
-/// Supervisor 汇编入口。
+// 引入 SBI 调用库，提供 console_putchar（输出字符）和 shutdown（关机）功能
+// 启用 nobios 特性后，tg_sbi 内建了 M-mode 启动代码，无需外部 SBI 固件
+use tg_sbi::{console_putchar, shutdown};
+
+/// S 态程序入口点。
 ///
-/// 心智模型：CPU（或前面的固件/bootloader）最终会跳到 `_start`，这里是我们掌控的一切的起点。  
-/// - 这里不做「业务逻辑」，只做两件事：1）准备好栈；2）跳到真正的 Rust 入口 `rust_main`。  
-/// - 一切 `#[...]` 属性都是告诉编译器/链接器「这个函数是入口，要放在哪个段，只在 riscv64 下生效」之类的元信息，本身不会生成指令。
-#[cfg(target_arch = "riscv64")]  // 条件编译：只有当目标架构是 riscv64 时才编译这个函数
-#[unsafe(naked)]  // 这是一个"裸函数"（naked function），意味着编译器不会生成函数序言和尾声代码，完全由我们自己控制汇编
-#[no_mangle]  // 不要改变函数名，保持为 _start，这样链接器才能找到它作为程序入口点
-#[link_section = ".text.entry"]  // 将这个函数放在链接脚本的 .text.entry 段中，通常是程序的入口地址
-unsafe extern "C" fn _start() -> ! {  // extern "C" 表示使用 C 调用约定；-> ! 表示这个函数永远不会返回（发散函数）
-    const STACK_SIZE: usize = 4096;  // 定义栈大小为 4096 字节（4KB），const 表示编译时常量
+/// 这是一个裸函数（naked function），放置在 `.text.entry` 段，
+/// 链接脚本将其安排在地址 `0x80200000`。
+///
+/// 裸函数不生成函数序言和尾声，因此可以在没有栈的情况下执行。
+/// 它完成两件事：
+/// 1. 设置栈指针 `sp`，指向栈顶（栈从高地址向低地址增长）
+/// 2. 跳转到 Rust 主函数 `rust_main`
+#[cfg(target_arch = "riscv64")]
+#[unsafe(naked)]
+#[unsafe(no_mangle)]
+#[unsafe(link_section = ".text.entry")]
+unsafe extern "C" fn _start() -> ! {
+    // 栈大小：4 KiB
+    const STACK_SIZE: usize = 4096;
 
-    #[link_section = ".bss.uninit"]  // 将这个静态变量放在 .bss.uninit 段中（未初始化的数据段）
-    static mut STACK: [u8; STACK_SIZE] = [0u8; STACK_SIZE];  // 定义一个可变的静态数组作为栈空间，类型是 u8 数组，大小为 STACK_SIZE
+    // 在 .bss.uninit 段中分配栈空间
+    #[unsafe(link_section = ".bss.uninit")]
+    static mut STACK: [u8; STACK_SIZE] = [0u8; STACK_SIZE];
 
-    core::arch::naked_asm!(  // 内联汇编宏，用于直接编写汇编代码
-        "la sp, {stack} + {stack_size}",  // la 是 RISC-V 的"加载地址"指令，将栈指针 sp 设置为 STACK 的末尾（栈从高地址向低地址增长）
-        "j  {main}",  // j 是跳转指令，跳转到 rust_main 函数
-        stack_size = const STACK_SIZE,  // 将常量 STACK_SIZE 传递给汇编代码
-        stack      =   sym STACK,  // sym 表示符号引用，将 STACK 变量的地址传递给汇编
-        main       =   sym rust_main,  // 将 rust_main 函数的地址传递给汇编
+    core::arch::naked_asm!(
+        "la sp, {stack} + {stack_size}", // 将 sp 设置为栈顶地址
+        "j  {main}",                      // 跳转到 rust_main
+        stack_size = const STACK_SIZE,
+        stack      =   sym STACK,
+        main       =   sym rust_main,
     )
 }
 
-/// 非常简单的 Supervisor 裸机程序。
+/// S 态主函数：打印 "Hello, world!" 并关机。
 ///
-/// 打印 `Hello, World!`，然后关机。
-extern "C" fn rust_main() -> ! {  // 使用 C 调用约定；-> ! 表示永不返回（程序会关机）
-    for c in b"Hello, world!\n" {  // b"..." 是字节字符串字面量，返回 &[u8]；for 循环遍历每个字节
-        tg_sbi::console_putchar(*c);  // *c 是解引用操作，获取字节值；console_putchar 通过 SBI 调用在控制台输出字符
+/// 通过 SBI 的 `console_putchar` 逐字节输出字符串，
+/// 然后调用 `shutdown` 正常关机退出 QEMU。
+extern "C" fn rust_main() -> ! {
+    for c in b"Hello, world!\n" {
+        console_putchar(*c);
     }
-    tg_sbi::shutdown(false)  // 调用 SBI 关机函数，false 表示正常关机（不是错误）
+    shutdown(false) // false 表示正常关机
 }
 
-/// Rust 异常处理函数，以异常方式关机。
-#[panic_handler]  // 这是 Rust 的 panic 处理函数属性，当程序发生 panic（不可恢复的错误）时会调用这个函数（依然只是给编译器看的标记）
-fn panic(_: &core::panic::PanicInfo) -> ! {  // _ 表示忽略参数（panic 信息）；-> ! 使用了 Rust 的「never 类型」`!`，表示这个函数不会正常返回（要么关机，要么无限循环）
-    tg_sbi::shutdown(true)  // true 表示异常关机（发生了错误）
+/// panic 处理函数。
+///
+/// `#![no_std]` 环境下必须自行实现。发生 panic 时以异常状态关机。
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    shutdown(true) // true 表示异常关机
 }
 
-/// 非 RISC-V64 架构的占位实现
-#[cfg(not(target_arch = "riscv64"))]  // 条件编译：只有当目标架构不是 riscv64 时才编译这个模块（用于在其他架构上编译时避免链接错误）
-mod stub {  // mod 定义一个模块，stub 是占位代码的意思
-    #[no_mangle]  // 保持函数名不变
-    pub extern "C" fn main() -> i32 {  // pub 表示公开函数；返回 i32 类型
-        0  // 返回 0 表示成功
-    }
-
-    #[no_mangle]
-    pub extern "C" fn __libc_start_main() -> i32 {  // 这是 C 标准库的启动函数，提供占位实现
+/// 非 RISC-V64 架构的占位模块。
+///
+/// 提供 `main` 等符号，使得在主机平台（如 x86_64）上也能通过编译，
+/// 满足 `cargo publish --dry-run` 和 `cargo test` 的需求。
+#[cfg(not(target_arch = "riscv64"))]
+mod stub {
+    /// 主机平台占位入口
+    #[unsafe(no_mangle)]
+    pub extern "C" fn main() -> i32 {
         0
     }
 
-    #[no_mangle]
-    pub extern "C" fn rust_eh_personality() {}  // Rust 异常处理个性函数，用于异常处理，这里提供空实现
+    /// C 运行时占位
+    #[unsafe(no_mangle)]
+    pub extern "C" fn __libc_start_main() -> i32 {
+        0
+    }
+
+    /// Rust 异常处理人格占位
+    #[unsafe(no_mangle)]
+    pub extern "C" fn rust_eh_personality() {}
 }
