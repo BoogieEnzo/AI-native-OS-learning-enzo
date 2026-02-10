@@ -1,0 +1,125 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/fengde/AI-native-OS-learning-enzo/ai4ose-lab1-2026s/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	//
+**学习与验收建议（最小闭环）**	README.md	/^## **学习与验收建议（最小闭环）**$/;"	s	chapter:ai4ose-lab1-2026s
+**常规浏览：安装与运行本 crate**	README.md	/^## **常规浏览：安装与运行本 crate**$/;"	s	chapter:ai4ose-lab1-2026s
+**快速浏览**	README.md	/^## **快速浏览**$/;"	s	chapter:ai4ose-lab1-2026s
+**推荐的本地目录摆放**	README.md	/^## **推荐的本地目录摆放**$/;"	s	chapter:ai4ose-lab1-2026s
+**教学实验环境入口**	README.md	/^## **教学实验环境入口**$/;"	s	chapter:ai4ose-lab1-2026s
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	o	array:local
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	a	array:deps
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n	array:deps.0
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	o	array:local
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	a	array:deps
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	n	array:deps.0
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	o	array:local
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	s	array:local.0.RerunIfChanged.paths
+0	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	o	array:local
+1	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	s	array:deps.0
+1	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	s	array:deps.0
+1. 你有两个仓库	docs/START.md	/^## 1. 你有两个仓库$/;"	s	chapter:AI4OSE Lab1（从这里开始）
+1. 安装 Rust 工具链	README.md	/^### 1. 安装 Rust 工具链$/;"	S	section:ai4ose-lab1-2026s""**常规浏览：安装与运行本 crate**
+17747080675513052775	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	o	object:outputs
+2	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	b	array:deps.0
+2	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	b	array:deps.0
+2. Linux 环境准备（够用版）	docs/START.md	/^## 2. Linux 环境准备（够用版）$/;"	s	chapter:AI4OSE Lab1（从这里开始）
+2. 直接下载安装执行：显示实验内容	README.md	/^### 2. 直接下载安装执行：显示实验内容$/;"	S	section:ai4ose-lab1-2026s""**常规浏览：安装与运行本 crate**
+3	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n	array:deps.0
+3	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	n	array:deps.0
+3. 先跑通 ch1（最小验证）	docs/START.md	/^## 3. 先跑通 ch1（最小验证）$/;"	s	chapter:AI4OSE Lab1（从这里开始）
+3. 源代码下载编译运行：显示实验内容	README.md	/^### 3. 源代码下载编译运行：显示实验内容$/;"	S	section:ai4ose-lab1-2026s""**常规浏览：安装与运行本 crate**
+4. 5 周计划（每周 1 个 chapter）	docs/START.md	/^## 4. 5 周计划（每周 1 个 chapter）$/;"	s	chapter:AI4OSE Lab1（从这里开始）
+5. 记录放哪里	docs/START.md	/^## 5. 记录放哪里$/;"	s	chapter:AI4OSE Lab1（从这里开始）
+7971740275564407648	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	o	object:outputs
+AI4OSE Lab1（从这里开始）	docs/START.md	/^# AI4OSE Lab1（从这里开始）$/;"	c
+AI4OSE_Lab1_2026S	src/main.rs	/^    fn AI4OSE_Lab1_2026S() {$/;"	f	module:tests
+CheckDepInfo	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	o	object:local.0
+CheckDepInfo	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	o	object:local.0
+CheckDepInfo	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	o	object:local.0
+RerunIfChanged	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	o	object:local.0
+ai4ose-lab1-2026s	README.md	/^# ai4ose-lab1-2026s$/;"	c
+checksum	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	b	object:local.0.CheckDepInfo
+checksum	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	b	object:local.0.CheckDepInfo
+checksum	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	b	object:local.0.CheckDepInfo
+code	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	n	object:outputs.17747080675513052775
+code	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	n	object:outputs.7971740275564407648
+compile_kind	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	n
+compile_kind	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+compile_kind	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	n
+compile_kind	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+config	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	n
+config	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+config	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	n
+config	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+declared_features	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	s
+declared_features	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	s
+declared_features	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	s
+declared_features	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	s
+dep_info	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	s	object:local.0.CheckDepInfo
+dep_info	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	s	object:local.0.CheckDepInfo
+dep_info	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	s	object:local.0.CheckDepInfo
+deps	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	a
+deps	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	a
+deps	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	a
+deps	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	a
+features	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	s
+features	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	s
+features	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	s
+features	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	s
+local	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	a
+local	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	a
+local	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	a
+local	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	a
+main	build.rs	/^fn main() {$/;"	f
+main	src/main.rs	/^fn main() {$/;"	f
+output	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	s	object:local.0.RerunIfChanged
+outputs	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	o
+path	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	n
+path	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+path	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	n
+path	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+paths	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	a	object:local.0.RerunIfChanged
+profile	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	n
+profile	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+profile	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	n
+profile	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+rustc	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	n
+rustc	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+rustc	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	n
+rustc	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+rustc_fingerprint	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	n
+rustflags	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	a
+rustflags	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	a
+rustflags	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	a
+rustflags	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	a
+status	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	s	object:outputs.17747080675513052775
+status	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	s	object:outputs.7971740275564407648
+stderr	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	s	object:outputs.17747080675513052775
+stderr	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	s	object:outputs.7971740275564407648
+stdout	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	s	object:outputs.17747080675513052775
+stdout	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	s	object:outputs.7971740275564407648
+success	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	b	object:outputs.17747080675513052775
+success	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	b	object:outputs.7971740275564407648
+successes	target/.rustc_info.json	/^{"rustc_fingerprint":13433527610344530464,"outputs":{"7971740275564407648":{"success":true,"stat/;"	o
+target	target/debug/.fingerprint/ai4ose-lab1-2026s-3b507ad0602848ba/build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":28351260462367185/;"	n
+target	target/debug/.fingerprint/ai4ose-lab1-2026s-55c0154d1f4ff85c/test-bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+target	target/debug/.fingerprint/ai4ose-lab1-2026s-95839d70ef5cb307/run-build-script-build-script-build.json	/^{"rustc":5470738401306409665,"features":"","declared_features":"","target":0,"profile":0,"path":/;"	n
+target	target/debug/.fingerprint/ai4ose-lab1-2026s-cbc2ab7609cc8c99/bin-ai4ose-lab1-2026s.json	/^{"rustc":5470738401306409665,"features":"[]","declared_features":"[]","target":13326412127392518/;"	n
+tests	src/main.rs	/^mod tests {$/;"	n
+前置：安装 `tg-checker`（一次即可）	docs/5-basic-labs.md	/^## 前置：安装 `tg-checker`（一次即可）$/;"	s	chapter:至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）
+实验 1：`ch1` 最小内核启动与 SBI 输出	docs/5-basic-labs.md	/^## 实验 1：`ch1` 最小内核启动与 SBI 输出$/;"	s	chapter:至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）
+实验 2：`ch2` 基础功能跑通 + `tg-checker` 验收	docs/5-basic-labs.md	/^## 实验 2：`ch2` 基础功能跑通 + `tg-checker` 验收$/;"	s	chapter:至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）
+实验 3：`ch3` 基础功能跑通 + `tg-checker` 验收	docs/5-basic-labs.md	/^## 实验 3：`ch3` 基础功能跑通 + `tg-checker` 验收$/;"	s	chapter:至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）
+实验 4：`ch4` 基础功能跑通 + `tg-checker` 验收	docs/5-basic-labs.md	/^## 实验 4：`ch4` 基础功能跑通 + `tg-checker` 验收$/;"	s	chapter:至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）
+实验 5：`ch5` 基础功能跑通 + `tg-checker` 验收	docs/5-basic-labs.md	/^## 实验 5：`ch5` 基础功能跑通 + `tg-checker` 验收$/;"	s	chapter:至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）
+把证据放到哪里	docs/5-basic-labs.md	/^## 把证据放到哪里$/;"	s	chapter:至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）
+至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）	docs/5-basic-labs.md	/^# 至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）$/;"	c
+进阶（可选）：Exercise 模式	docs/5-basic-labs.md	/^## 进阶（可选）：Exercise 模式$/;"	s	chapter:至少 5 个基础实验：路线与验收（基于 rCore 组件化实验）

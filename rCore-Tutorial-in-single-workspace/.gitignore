@@ -1,0 +1,12 @@
+**/.*/*
+!**/.cargo/*
+!/.github/*
+!/.vscode/settings.json
+
+/target
+*.asm
+*.bin
+!/rustsbi-qemu.bin
+!/**/m_entry.asm
+Cargo.lock
+checker/
