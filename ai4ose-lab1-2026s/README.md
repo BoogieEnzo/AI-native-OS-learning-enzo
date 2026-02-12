@@ -13,15 +13,35 @@ AI4OSE Lab1: 与 AI 合作进行操作系统内核学习的起点。
 > 本仓库的教学环境以 “最新的 OS 课组件化实验代码” `rCore-Tutorial-in-single-workspace` 为**实验代码基座**。
 > 你本地已经有该仓库（含 `ch1..ch8` 与 `tg-*` 组件 crate），因此这里不重复拷贝代码，而是给出**学习路线 + 验收方式 + 记录规范**。
 
-## **快速浏览**
+## **快速入口**
 
-- **实验一说明（原文）**：`src/content.txt`
-- **从“做实验”开始**：`docs/START.md`
+| 用途 | 文档 |
+|------|------|
+| 从“做实验”开始 | `docs/START.md` |
+| 5 个基础实验路线与验收 | `docs/5-basic-labs.md` |
+| 学习计划示例 | `docs/plan-2.11-16.md` |
+| 实验说明原文 | `src/content.txt` |
+| 过程记录示例 | `logs/` |
 
-## **教学实验环境入口**
+## **目录结构（以仓库当前内容为准）**
 
-- **总入口**：`docs/START.md`
-- **至少 5 个基础实验的学习路线与验收**：`docs/5-basic-labs.md`
+```text
+ai4ose-lab1-2026s/
+  docs/                 # 学习路线/验收/计划
+    START.md
+    5-basic-labs.md
+    plan-2.11-16.md
+  logs/                 # 过程记录：与 AI 协作、每日/每周进度等
+    chat1.md
+    开发进度.md
+  src/                  # crate 本体（用于打印实验说明）
+    main.rs
+    content.txt
+  Cargo.toml / Cargo.lock
+  build.rs / rust-toolchain.toml
+  LICENSE / .gitignore
+  target/               # 本地编译产物（可忽略，不用于教学内容）
+```
 
 ## **推荐的本地目录摆放**
 
@@ -35,11 +55,12 @@ AI4OSE Lab1: 与 AI 合作进行操作系统内核学习的起点。
 
 课堂作业只需要你把 `ai4ose-lab1-2026s`（以及后续的 `ai4ose-lab2-2026s`、`ai4ose-lab3-2026s` 等）作为独立仓库推送到 `github.com/learningos`。`rCore-Tutorial-in-single-workspace` 和外层工作目录是否作为 git 仓库、如何管理，完全由你自己决定。
 
-后续文档默认你能在 `rCore-Tutorial-in-single-workspace` 里直接执行：
+在 `rCore-Tutorial-in-single-workspace` 目录下可执行：
 
 - `cargo qemu --ch <n>`：在 QEMU 运行第 n 章
 - `cargo qemu --ch 1 --lab`：运行 ch1-lab
-- `tg-checker`：检查输出是否通过（见 `docs/5-basic-labs.md`）
+- `cargo install --path tg-checker`：安装验收工具（一次即可）
+- 在 `ch<n>` 目录下 `cargo run 2>&1 | tg-checker --ch <n>`：验收 ch2~ch5（详见 `docs/5-basic-labs.md`）
 
 ## **常规浏览：安装与运行本 crate**
 
@@ -87,8 +108,6 @@ cargo run
 
 ## **学习与验收建议（最小闭环）**
 
-如果你现在要“快速满足 Lab1 的硬性要求（至少 5 个基础实验 + 教学环境雏形）”，建议按这个顺序：
-
-- **先读**：`docs/START.md`
-- **再做**：`docs/5-basic-labs.md` 里的 5 个实验（每个实验都要求留下可复现的命令与输出/截图）
-- **最后写**：把记录放到“当周对应的 lab 仓库”（例如 lab2、lab3…）
+1. 读 `docs/START.md`（环境准备、先跑通 ch1）
+2. 做 `docs/5-basic-labs.md` 里的 5 个实验（留可复现命令与验收证据）
+3. 记录放到**当周对应的 lab 仓库**：Lab1 周→本仓库 `logs/`；Lab2 周→lab2 仓库；以此类推

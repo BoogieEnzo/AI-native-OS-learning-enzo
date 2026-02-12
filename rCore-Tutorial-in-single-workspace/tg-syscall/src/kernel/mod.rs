@@ -30,6 +30,9 @@ pub trait Process: Sync {
     fn getpid(&self, caller: Caller) -> isize {
         unimplemented!()
     }
+    fn get_taskinfo(&self, caller: Caller, buf: usize, len: usize) -> isize {
+        unimplemented!()
+    }
     fn spawn(&self, caller: Caller, path: usize, count: usize) -> isize {
         unimplemented!()
     }
@@ -262,6 +265,7 @@ pub fn handle(caller: Caller, id: SyscallId, args: [usize; 6]) -> SyscallResult 
         Id::EXECVE => PROCESS.call(id, |proc| proc.exec(caller, args[0], args[1])),
         Id::WAIT4 => PROCESS.call(id, |proc| proc.wait(caller, args[0] as _, args[1])),
         Id::GETPID => PROCESS.call(id, |proc| proc.getpid(caller)),
+        Id::GET_TASKINFO => PROCESS.call(id, |proc| proc.get_taskinfo(caller, args[0], args[1])),
         Id::CLOCK_GETTIME => CLOCK.call(id, |clock| {
             clock.clock_gettime(caller, ClockId(args[0]), args[1])
         }),

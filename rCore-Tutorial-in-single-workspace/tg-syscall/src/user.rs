@@ -153,6 +153,16 @@ pub fn getpid() -> isize {
     unsafe { syscall0(SyscallId::GETPID) }
 }
 
+/// 获取当前任务信息（task id 和 task name）。
+///
+/// 将任务名称写入 `buf`（以 null 结尾），返回任务 ID。
+/// 返回负数表示错误。
+#[inline]
+pub fn get_taskinfo(buf: &mut [u8]) -> isize {
+    // SAFETY: buf 是有效的可写切片
+    unsafe { syscall2(SyscallId::GET_TASKINFO, buf.as_mut_ptr() as _, buf.len()) }
+}
+
 /// 创建并运行一个新进程。
 pub fn spawn(path: &str) -> isize {
     // SAFETY: path 是有效的字符串引用

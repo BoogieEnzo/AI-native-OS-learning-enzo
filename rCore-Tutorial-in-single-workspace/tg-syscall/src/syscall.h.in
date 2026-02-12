@@ -1,4 +1,4 @@
-﻿// Copied from <https://git.musl-libc.org/cgit/musl/tree/arch/riscv64/bits/syscall.h.in>.
+// Copied from <https://git.musl-libc.org/cgit/musl/tree/arch/riscv64/bits/syscall.h.in>.
 
 #define __NR_io_setup 0
 #define __NR_io_destroy 1
