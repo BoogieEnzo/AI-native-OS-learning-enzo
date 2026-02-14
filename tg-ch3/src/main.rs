@@ -54,17 +54,14 @@ core::arch::global_asm!(include_str!(env!("APP_ASM")));
 // 最大支持的应用程序数量
 const APP_CAPACITY: usize = 32;
 
-// 定义内核入口点：分配 (APP_CAPACITY + 2) * 8 KiB = 272 KiB 的内核栈
-// 比第二章更大，因为需要同时容纳多个任务的内核上下文。
-//
-// 这里不再调用 tg_linker::boot0! 宏，避免外部已发布版本与 Rust 2024
-// 在属性语义上的兼容差异影响本 crate 的发布校验。
+// 定义内核入口点：分配足够大的内核栈以容纳 TCB 数组（含 syscall_count）
+// 每个 TCB 约 10.5 KiB，32 个约 336 KiB，预留余量
 #[cfg(target_arch = "riscv64")]
 #[unsafe(naked)]
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".text.entry")]
 unsafe extern "C" fn _start() -> ! {
-    const STACK_SIZE: usize = (APP_CAPACITY + 2) * 8192;
+    const STACK_SIZE: usize = (APP_CAPACITY + 2) * 8192 + 64 * 1024;
     #[unsafe(link_section = ".boot.stack")]
     static mut STACK: [u8; STACK_SIZE] = [0u8; STACK_SIZE];
 
@@ -294,24 +291,44 @@ mod impls {
         }
     }
 
-    /// Trace 系统调用实现（练习题需要完成的部分）
+    /// Trace 系统调用实现（练习题 exer 3）
     ///
-    /// 当前为占位实现，返回 -1 表示未实现。
-    /// 学生需要在练习中实现 trace 功能，支持：
-    /// - 读取用户内存（trace_request=0）
-    /// - 写入用户内存（trace_request=1）
-    /// - 查询系统调用计数（trace_request=2）
+    /// - trace_request=0：从用户地址 id 读 1 字节，返回该字节值
+    /// - trace_request=1：向用户地址 id 写 1 字节（data 低 8 位），返回 0
+    /// - trace_request=2：查询当前任务对系统调用 id 的调用次数（本次已计入），返回次数
+    /// - 其他：返回 -1
     impl Trace for SyscallContext {
-        #[inline]
         fn trace(
             &self,
-            _caller: Caller,
-            _trace_request: usize,
-            _id: usize,
-            _data: usize,
+            caller: Caller,
+            trace_request: usize,
+            id: usize,
+            data: usize,
         ) -> isize {
-            tg_console::log::info!("trace: not implemented");
-            -1
+            match trace_request {
+                // 读取用户内存：id 视为 *const u8，返回该地址处 1 字节
+                0 => unsafe { (id as *const u8).read() as isize },
+                // 写入用户内存：id 视为 *mut u8，写入 data 的低 8 位
+                1 => {
+                    unsafe { (id as *mut u8).write(data as u8) };
+                    0
+                }
+                // 查询系统调用 id 的调用次数（caller.entity 为当前 TCB 的 syscall_count 指针）
+                2 => {
+                    if id < crate::task::SYSCALL_COUNT_CAP {
+                        let counts = unsafe {
+                            core::slice::from_raw_parts(
+                                caller.entity as *const u32,
+                                crate::task::SYSCALL_COUNT_CAP,
+                            )
+                        };
+                        counts[id] as isize
+                    } else {
+                        0
+                    }
+                }
+                _ => -1,
+            }
         }
     }
 }
