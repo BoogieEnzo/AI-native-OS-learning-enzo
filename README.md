@@ -11,7 +11,6 @@ Local workspace for OS / rCore Tutorial learning and course labs.
 
 ## Git
 
-- **origin:** your fork (`boogieenzo/AI-native-OS-learning-enzo`)
 - **upstream:** `rcore-os/tg-rcore-tutorial` (for reference; actual tutorial code lives in `tg-rcore-tutorial/` as a nested repo)
 
 To sync the tutorial with upstream, run `git fetch` and `git merge` inside `tg-rcore-tutorial/`, not in this root.
