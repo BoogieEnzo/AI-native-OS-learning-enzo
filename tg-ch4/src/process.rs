@@ -33,6 +33,9 @@ use xmas_elf::{
     program, ElfFile,
 };
 
+/// 系统调用计数数组大小
+const SYSCALL_COUNT_CAP: usize = 512;
+
 /// 进程结构体
 ///
 /// 包含进程运行所需的全部信息：
@@ -40,6 +43,7 @@ use xmas_elf::{
 /// - `address_space`：Sv39 地址空间，管理该进程的页表
 /// - `heap_bottom`：堆底地址（ELF 加载的最高地址的下一页）
 /// - `program_brk`：当前堆顶地址（通过 sbrk 调整）
+/// - `syscall_count`：系统调用计数数组（用于 trace 系统调用）
 pub struct Process {
     /// 用户态上下文（含 satp，支持跨地址空间的 Trap 切换）
     pub context: ForeignContext,
@@ -49,6 +53,8 @@ pub struct Process {
     pub heap_bottom: usize,
     /// 当前程序 break 位置（堆顶）
     pub program_brk: usize,
+    /// 系统调用计数数组
+    pub syscall_count: [u32; SYSCALL_COUNT_CAP],
 }
 
 impl Process {
@@ -150,6 +156,7 @@ impl Process {
             address_space,
             heap_bottom,
             program_brk: heap_bottom,
+            syscall_count: [0; SYSCALL_COUNT_CAP],
         })
     }
 

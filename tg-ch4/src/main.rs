@@ -190,9 +190,10 @@ extern "C" fn rust_main() -> ! {
     }
 
     // 第七步：建立调度栈（映射到内核地址空间的高地址区域）
+    // 需要足够大的栈以容纳 schedule()、ctx.execute(portal) 的 trap 帧及系统调用处理深度
     const PAGE: Layout =
-        unsafe { Layout::from_size_align_unchecked(2 << Sv39::PAGE_BITS, 1 << Sv39::PAGE_BITS) };
-    let pages = 2;
+        unsafe { Layout::from_size_align_unchecked(6 << Sv39::PAGE_BITS, 1 << Sv39::PAGE_BITS) };
+    let pages = 6;
     let stack = unsafe { alloc(PAGE) };
     ks.map_extern(
         VPN::new((1 << 26) - pages)..VPN::new(1 << 26),
@@ -249,6 +250,14 @@ extern "C" fn schedule() -> ! {
                 let ctx = &mut ctx.context;
                 let id: Id = ctx.a(7).into();
                 let args = [ctx.a(0), ctx.a(1), ctx.a(2), ctx.a(3), ctx.a(4), ctx.a(5)];
+                
+                // 统计系统调用次数（在分发前自增）
+                let process = unsafe { &mut PROCESSES.get_mut()[0] };
+                let id_raw = id.0;
+                if id_raw < 512 {
+                    process.syscall_count[id_raw] = process.syscall_count[id_raw].saturating_add(1);
+                }
+                // caller.entity 是进程索引（0），用于在系统调用实现中访问进程
                 match tg_syscall::handle(Caller { entity: 0, flow: 0 }, id, args) {
                     Ret::Done(ret) => match id {
                         // exit：移除进程
@@ -270,10 +279,11 @@ extern "C" fn schedule() -> ! {
             }
             // ─── 其他异常/中断：杀死进程 ───
             e => {
+                let ctx = unsafe { &PROCESSES.get_mut()[0].context.context };
                 log::error!(
                     "unsupported trap: {e:?}, stval = {:#x}, sepc = {:#x}",
                     stval::read(),
-                    ctx.context.pc()
+                    ctx.pc()
                 );
                 unsafe { PROCESSES.get_mut().remove(0) };
             }
@@ -356,8 +366,8 @@ fn kernel_space(
 /// 与前几章不同，本章的系统调用实现需要进行**地址翻译**：
 /// 用户传入的指针是虚拟地址，内核需要通过页表将其翻译为物理地址才能访问。
 mod impls {
-    use crate::{build_flags, Sv39, PROCESSES};
-    use alloc::alloc::alloc_zeroed;
+    use crate::{build_flags, parse_flags, Sv39, PROCESSES};
+    use alloc::{alloc::alloc_zeroed, string::String};
     use core::{alloc::Layout, ptr::NonNull};
     use tg_console::log;
     use tg_kernel_vm::{
@@ -562,16 +572,52 @@ mod impls {
     /// - 写入时检查用户地址是否可见且可写
     /// - 使用 translate() 方法进行地址翻译和权限检查
     impl Trace for SyscallContext {
-        #[inline]
         fn trace(
             &self,
-            _caller: Caller,
-            _trace_request: usize,
-            _id: usize,
-            _data: usize,
+            caller: Caller,
+            trace_request: usize,
+            id: usize,
+            data: usize,
         ) -> isize {
-            tg_console::log::info!("trace: not implemented");
-            -1
+            let process = match unsafe { PROCESSES.get_mut() }.get_mut(caller.entity) {
+                Some(p) => p,
+                None => return -1,
+            };
+            
+            match trace_request {
+                // 读取用户内存：id 视为 *const u8，返回该地址处 1 字节
+                0 => {
+                    const READABLE: VmFlags<Sv39> = build_flags("URV");
+                    if let Some(ptr) = process.address_space
+                        .translate::<u8>(VAddr::new(id), READABLE)
+                    {
+                        unsafe { ptr.as_ptr().read() as isize }
+                    } else {
+                        -1
+                    }
+                }
+                // 写入用户内存：id 视为 *mut u8，写入 data 的低 8 位
+                1 => {
+                    const WRITABLE: VmFlags<Sv39> = build_flags("UWV");
+                    if let Some(ptr) = process.address_space
+                        .translate::<u8>(VAddr::new(id), WRITABLE)
+                    {
+                        unsafe { (ptr.as_ptr() as *mut u8).write(data as u8) };
+                        0
+                    } else {
+                        -1
+                    }
+                }
+                // 查询系统调用 id 的调用次数
+                2 => {
+                    if id < process.syscall_count.len() {
+                        process.syscall_count[id] as isize
+                    } else {
+                        0
+                    }
+                }
+                _ => -1,
+            }
         }
     }
 
@@ -582,7 +628,7 @@ mod impls {
     impl Memory for SyscallContext {
         fn mmap(
             &self,
-            _caller: Caller,
+            caller: Caller,
             addr: usize,
             len: usize,
             prot: i32,
@@ -590,15 +636,106 @@ mod impls {
             _fd: i32,
             _offset: usize,
         ) -> isize {
-            tg_console::log::info!(
-                "mmap: addr = {addr:#x}, len = {len}, prot = {prot}, not implemented"
-            );
-            -1
+            let process = match unsafe { PROCESSES.get_mut() }.get_mut(caller.entity) {
+                Some(p) => p,
+                None => return -1,
+            };
+            
+            const PAGE_SIZE: usize = 1 << Sv39::PAGE_BITS;
+            const PAGE_MASK: usize = PAGE_SIZE - 1;
+            
+            // 检查 addr 是否按页对齐
+            if addr & PAGE_MASK != 0 {
+                return -1;
+            }
+            
+            // 检查 prot 参数：bit 0=可读，bit 1=可写，bit 2=可执行，其他位必须为 0
+            if prot & !0b111 != 0 {
+                return -1;
+            }
+            
+            // len 为 0 时按页向上取整为 1 页
+            let len = if len == 0 { PAGE_SIZE } else { len };
+            let len_aligned = (len + PAGE_MASK) & !PAGE_MASK;
+            
+            let vaddr_start = VAddr::<Sv39>::new(addr);
+            let vaddr_end = VAddr::<Sv39>::new(addr + len_aligned);
+            let vpn_range = vaddr_start.floor()..vaddr_end.ceil();
+            
+            // 检查地址范围是否已映射（遍历 areas）
+            for area in &process.address_space.areas {
+                if area.start < vpn_range.end && area.end > vpn_range.start {
+                    // 有重叠，返回错误
+                    return -1;
+                }
+            }
+            
+            // 构建页表项权限标志
+            let mut flags_str = String::from("U_V");
+            if prot & 0b001 != 0 {
+                flags_str.insert(2, 'R');
+            }
+            if prot & 0b010 != 0 {
+                flags_str.insert(2, 'W');
+            }
+            if prot & 0b100 != 0 {
+                flags_str.insert(2, 'X');
+            }
+            
+            let flags = match parse_flags(&flags_str) {
+                Ok(f) => f,
+                Err(_) => return -1,
+            };
+            
+            // 分配物理页并映射
+            process.address_space.map(vpn_range, &[], 0, flags);
+            0
         }
 
-        fn munmap(&self, _caller: Caller, addr: usize, len: usize) -> isize {
-            tg_console::log::info!("munmap: addr = {addr:#x}, len = {len}, not implemented");
-            -1
+        fn munmap(&self, caller: Caller, addr: usize, len: usize) -> isize {
+            let process = match unsafe { PROCESSES.get_mut() }.get_mut(caller.entity) {
+                Some(p) => p,
+                None => return -1,
+            };
+            
+            const PAGE_SIZE: usize = 1 << Sv39::PAGE_BITS;
+            const PAGE_MASK: usize = PAGE_SIZE - 1;
+            
+            // 检查 addr 是否按页对齐
+            if addr & PAGE_MASK != 0 {
+                return -1;
+            }
+            
+            // len 为 0 时按页向上取整为 1 页
+            let len = if len == 0 { PAGE_SIZE } else { len };
+            let len_aligned = (len + PAGE_MASK) & !PAGE_MASK;
+            
+            let vaddr_start = VAddr::<Sv39>::new(addr);
+            let vaddr_end = VAddr::<Sv39>::new(addr + len_aligned);
+            let vpn_range = vaddr_start.floor()..vaddr_end.ceil();
+            
+            // 检查地址范围是否完全在已映射区域内
+            // 需要确保 [vpn_range.start, vpn_range.end) 范围内的每一页都被映射
+            // 遍历每一页，检查是否在某个 area 内
+            let mut vpn = vpn_range.start;
+            while vpn < vpn_range.end {
+                let mut found = false;
+                for area in &process.address_space.areas {
+                    if area.start <= vpn && area.end > vpn {
+                        found = true;
+                        break;
+                    }
+                }
+                if !found {
+                    // 存在未映射的页
+                    return -1;
+                }
+                vpn = vpn + 1;
+            }
+            
+            // 取消映射
+            process.address_space.unmap(vpn_range);
+            0
         }
     }
 }
