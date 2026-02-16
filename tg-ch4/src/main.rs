@@ -653,6 +653,10 @@ mod impls {
             if prot & !0b111 != 0 {
                 return -1;
             }
+            // prot 至少需要 R/W/X 之一，全 0 无意义
+            if prot & 0b111 == 0 {
+                return -1;
+            }
             
             // len 为 0 时按页向上取整为 1 页
             let len = if len == 0 { PAGE_SIZE } else { len };
