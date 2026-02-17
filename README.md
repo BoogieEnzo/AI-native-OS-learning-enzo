@@ -7,7 +7,18 @@ Local workspace for OS / rCore Tutorial learning and course labs.
 | Path | Description |
 |------|-------------|
 | **tg-rcore-tutorial/** | [TanGram rCore Tutorial](https://github.com/rcore-os/tg-rcore-tutorial) — componentized rCore Tutorial (ch1–ch8 + tg-* crates). Has its own git repo; sync with upstream there. |
-| **ai4ose-lab1-2026s/** | AI4OSE 2026 spring lab1. |
+| **tg-ch3/** | Chapter 3 （多道程序与分时多任务） |
+| **tg-ch4/** | Chapter 4 （地址空间与虚拟内存） |
+| **tg-ch5/** | Chapter 5 （进程管理） |
+| **ai4ose-lab1-2026s/** | AI4OSE 2026 spring lab1 |
+| **docs/** | 学习笔记与计划（见下表） |
+
+### docs/ 目录
+
+| 文件 | 说明 |
+|------|------|
+| **春节学习计划.md** | 春节假期学习计划（第七章、第八章） |
+| **result2.11-2.17.txt** | 学习进度记录与反馈（2.11–2.17 周） |
 
 ## Git
 
