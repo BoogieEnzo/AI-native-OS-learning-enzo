@@ -784,7 +784,7 @@ mod impls {
                 Ok(e) => e,
                 Err(_) => return -1,
             };
-            let mut child_proc = match ProcStruct::from_elf(elf) {
+            let child_proc = match ProcStruct::from_elf(elf) {
                 Some(p) => p,
                 None => return -1,
             };
