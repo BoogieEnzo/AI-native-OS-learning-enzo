@@ -4,7 +4,6 @@
 
 ### 1. tg-easy-fs 本地化与修改
 
-- **克隆**：在 `tg-ch6` 下执行 `cargo clone tg-easy-fs`，并将 `Cargo.toml` / `Cargo.toml.orig` 中依赖改为 `tg-easy-fs = { path = "./tg-easy-fs" }`（含 build-dependencies）。
 - **layout.rs**
   - 在 `DiskInode` 中新增字段 `nlink: u32`。
   - `initialize()` 中设置 `self.nlink = 1`，并增加 `nlink()` 方法。
