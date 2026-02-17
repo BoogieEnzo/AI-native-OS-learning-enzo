@@ -64,6 +64,4 @@
 - **processor.rs**：`fetch()` 不再 `pop_front()`。遍历 `ready_queue` 找 stride 最小的 id，从队列删掉该 id，对该进程做 `stride += BIG_STRIDE / priority.max(1)`，返回该 id。`add()` 不变。
 - **main.rs**：`set_priority(prio)`：prio 小于 2 则返回 -1，否则设 `current.priority = prio` 并返回 prio。
 
-### test.sh
 
-- 练习测试需要 shell 里跑 `ch5_usertest`，脚本里用 `printf 'ch5_usertest\n' | timeout 120 cargo run --features exercise ...` 把命令喂给 QEMU 标准输入，否则测例不会跑。

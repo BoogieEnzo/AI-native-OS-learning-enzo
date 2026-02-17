@@ -216,6 +216,7 @@ extern "C" fn rust_main() -> ! {
     let portal_layout = Layout::from_size_align(portal_size, 1 << Sv39::PAGE_BITS).unwrap();
     let portal_ptr = unsafe { alloc(portal_layout) };
     assert!(portal_layout.size() < 1 << Sv39::PAGE_BITS);
+
     // 步骤 5：建立内核地址空间并激活 Sv39 分页
     kernel_space(layout, MEMORY, portal_ptr as _);
     // 步骤 6：初始化异界传送门（设置传送门页面的虚拟地址和 slot 数量）
@@ -639,58 +640,85 @@ mod impls {
             current.pid.get_usize() as _
         }
 
-        /// spawn 系统调用：创建新进程并直接执行指定程序
-        ///
-        /// 与 fork+exec 不同，spawn 直接从 ELF 创建新进程，
-        /// 无需复制父进程地址空间。ch5_usertest 用 spawn 跑 ch4_mmap 等测例。
+        /// spawn 系统调用：直接从 ELF 文件创建新进程
+        /// 与 fork+exec 不同，spawn 不需要先复制父进程地址空间再替换，
+        /// 而是直接从 ELF 构建全新的进程，效率更高
         fn spawn(&self, _caller: Caller, path: usize, count: usize) -> isize {
+            // 定义一个常量标志位：R=可读，V=有效（Valid）
+            // 用于后续检查用户传入的路径指针是否有读权限
             const READABLE: VmFlags<Sv39> = build_flags("RV");
+            
+            // 获取全局进程管理器的可变裸指针
+            // PROCESSOR 是全局的进程调度器，管理所有进程
+            // 使用裸指针是因为需要在 unsafe 块中多次访问
             let processor: *mut PManager<ProcStruct, ProcManager> = PROCESSOR.get_mut() as *mut _;
+            
+            // 获取当前进程（即调用 spawn 的父进程）的 PID
+            // current() 返回当前正在运行的进程
+            // unwrap() 假设一定有当前进程（否则 panic）
             let parent_pid = unsafe { (*processor).current().unwrap().pid };
+            
+            // 从用户空间读取要执行的程序名称
+            // path 是用户传入的字符串指针（虚拟地址）
+            // count 是字符串长度
             let name = match unsafe { (*processor).current().unwrap() }
-                .address_space
-                .translate::<u8>(VAddr::new(path), READABLE)
+                .address_space  // 获取当前进程的地址空间
+                .translate::<u8>(VAddr::new(path), READABLE)  // 将用户虚拟地址转换为内核可访问的物理地址
             {
+                // 转换成功，ptr 是指向实际内存的指针
                 Some(ptr) => unsafe {
+                    // 从裸指针构造字符串切片
+                    // from_raw_parts: 根据指针和长度创建 &[u8]
+                    // from_utf8_unchecked: 假设是合法 UTF-8（不检查，危险但快）
                     core::str::from_utf8_unchecked(core::slice::from_raw_parts(
                         ptr.as_ptr(),
                         count,
                     ))
                 },
+                // 地址转换失败（无效地址或无读权限），返回错误码 -1
                 None => return -1,
             };
+            
+            // 根据程序名从预加载的应用列表中查找 ELF 数据
+            // APPS 是一个全局的 name -> ELF二进制数据 的映射表
             let elf_data = match APPS.get(name) {
                 Some(data) => data,
                 None => {
+                    // 找不到对应的应用程序，打印错误日志并返回 -1
                     log::error!("spawn: unknown app {name}");
                     return -1;
                 }
             };
+            
+            // 解析 ELF 文件格式
+            // ElfFile::new 会验证 ELF 头部、段信息等
             let elf = match ElfFile::new(elf_data) {
                 Ok(e) => e,
-                Err(_) => return -1,
+                Err(_) => return -1,  // ELF 格式错误
             };
+            
+            // 核心步骤：从 ELF 直接创建新进程
+            // from_elf 会：
+            //   1. 创建新的地址空间
+            //   2. 加载 ELF 的各个段（代码段、数据段等）到内存
+            //   3. 设置入口点、用户栈等
+            //   4. 分配新的 PID
+            // 这就是 spawn 与 fork 的关键区别：不复制父进程，直接从 ELF 构建
             let child = match ProcStruct::from_elf(elf) {
                 Some(p) => p,
-                None => return -1,
+                None => return -1,  // 进程创建失败（可能内存不足等）
             };
+            
+            // 保存子进程的 PID，稍后返回给父进程
             let pid = child.pid;
+            
+            // 将新进程加入调度器
+            // 参数：子进程PID、子进程结构体、父进程PID（用于建立父子关系）
             unsafe { (*processor).add(pid, child, parent_pid) };
+            
+            // 返回子进程的 PID 给父进程
+            // get_usize() 将 PID 转为 usize，再转为 isize 返回
             pid.get_usize() as isize
-        }
-
-        /// sbrk 系统调用：调整进程堆空间大小
-        ///
-        /// - size > 0：扩展堆
-        /// - size < 0：收缩堆
-        /// - size == 0：返回当前堆顶地址
-        fn sbrk(&self, _caller: Caller, size: i32) -> isize {
-            let current = PROCESSOR.get_mut().current().unwrap();
-            if let Some(old_brk) = current.change_program_brk(size as isize) {
-                old_brk as isize
-            } else {
-                -1
-            }
         }
     }
 
