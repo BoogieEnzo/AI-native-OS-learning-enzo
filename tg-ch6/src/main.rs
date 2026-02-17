@@ -859,7 +859,7 @@ mod impls {
 
     /// 内存管理系统调用实现
     impl Memory for SyscallContext {
-        /// mmap 系统调用（TODO 练习题）
+        /// mmap：在用户地址空间映射匿名页。addr/len 须页对齐；prot 仅允许 1(只读) 或 3(读写)，2(只写) 返回 -1。
         fn mmap(
             &self,
             _caller: Caller,
@@ -870,16 +870,36 @@ mod impls {
             _fd: i32,
             _offset: usize,
         ) -> isize {
-            tg_console::log::info!(
-                "mmap: addr = {addr:#x}, len = {len}, prot = {prot}, not implemented"
-            );
-            -1
+            const PAGE_SIZE: usize = 4096;
+            if addr % PAGE_SIZE != 0 || len == 0 || len % PAGE_SIZE != 0 {
+                return -1;
+            }
+            if prot == 0 || (prot & !3) != 0 {
+                return -1;
+            }
+            let flags = match prot {
+                1 => build_flags("U__RV"),
+                2 => build_flags("U___V"),
+                _ => build_flags("U_WRV"),
+            };
+            let current = PROCESSOR.get_mut().current().unwrap();
+            let start = VAddr::<Sv39>::new(addr).floor();
+            let end = VAddr::<Sv39>::new(addr + len).ceil();
+            current.address_space.map(start..end, &[], 0, flags);
+            0
         }
 
-        /// munmap 系统调用（TODO 练习题）
+        /// munmap：解除映射，addr 与 len 须页对齐
         fn munmap(&self, _caller: Caller, addr: usize, len: usize) -> isize {
-            tg_console::log::info!("munmap: addr = {addr:#x}, len = {len}, not implemented");
-            -1
+            const P: usize = 4096;
+            if addr % P != 0 || len % P != 0 {
+                return -1;
+            }
+            let cur = PROCESSOR.get_mut().current().unwrap();
+            let s = VAddr::<Sv39>::new(addr).floor();
+            let e = VAddr::<Sv39>::new(addr + len).ceil();
+            cur.address_space.unmap(s..e);
+            0
         }
     }
 }
