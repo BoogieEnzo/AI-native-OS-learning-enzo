@@ -30,18 +30,7 @@
 
 ---
 
-## 二、spawn 系统调用
-
-- **目的**：`ch6_usertest` 通过 `spawn(程序名)` 运行各子测例；未实现时 spawn 返回 -1，子程序不执行，练习测例预期输出无法出现。
-- **实现（main.rs impl Process）**：
-  - 从用户空间读取 path（与 exec 相同：path 指针 + count 长度）。
-  - `FS.open(name, RDONLY)`，`read_all` 得到 ELF，`ProcStruct::from_elf(elf)` 创建新进程（新地址空间、新 fd_table，不复制父进程）。
-  - `processor.add(pid, child_proc, parent_pid)` 将子进程加入调度，父进程为当前进程。
-  - 返回子进程 pid（isize）。
-
----
-
-## 三、测试与注意点
+## 二、测试与注意点
 
 - 若曾用旧版 tg-easy-fs 打过 `fs.img`，建议先 `cargo clean && cargo build` 再测，避免根 inode 布局不一致。
 - 练习测例：`cargo run --features exercise` 后在内核 shell 输入 `ch6_usertest`；或执行 `./test.sh exercise`。

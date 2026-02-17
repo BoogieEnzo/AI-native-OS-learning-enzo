@@ -236,6 +236,11 @@ extern "C" fn rust_main() -> ! {
                         }
                     }
                 }
+                // ─── 访存异常（mmap 只读/无权限页触发的预期行为）：静默退出 ───
+                scause::Trap::Exception(scause::Exception::LoadPageFault)
+                | scause::Trap::Exception(scause::Exception::StorePageFault) => {
+                    unsafe { (*processor).make_current_exited(-3) };
+                }
                 // ─── 其他异常/中断：杀死进程 ───
                 e => {
                     log::error!("unsupported trap: {e:?}");
@@ -871,9 +876,10 @@ mod impls {
             _offset: usize,
         ) -> isize {
             const PAGE_SIZE: usize = 4096;
-            if addr % PAGE_SIZE != 0 || len == 0 || len % PAGE_SIZE != 0 {
+            if addr % PAGE_SIZE != 0 || len == 0 {
                 return -1;
             }
+            let len_aligned = (len + PAGE_SIZE - 1) / PAGE_SIZE * PAGE_SIZE;
             if prot == 0 || (prot & !3) != 0 {
                 return -1;
             }
@@ -884,7 +890,7 @@ mod impls {
             };
             let current = PROCESSOR.get_mut().current().unwrap();
             let start = VAddr::<Sv39>::new(addr).floor();
-            let end = VAddr::<Sv39>::new(addr + len).ceil();
+            let end = VAddr::<Sv39>::new(addr + len_aligned).ceil();
             current.address_space.map(start..end, &[], 0, flags);
             0
         }
