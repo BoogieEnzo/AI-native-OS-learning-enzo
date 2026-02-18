@@ -187,9 +187,9 @@ impl Process {
             address_space,
             // 初始化文件描述符表：预留 stdin(0)、stdout(1)、stderr(2)
             fd_table: vec![
-                Some(Mutex::new(FileHandle::empty(true, false))),  // fd 0: stdin（可读）
-                Some(Mutex::new(FileHandle::empty(false, true))),  // fd 1: stdout（可写）
-                Some(Mutex::new(FileHandle::empty(false, true))),  // fd 2: stderr（可写）
+                Some(Mutex::new(FileHandle::empty(true, false))), // fd 0: stdin（可读）
+                Some(Mutex::new(FileHandle::empty(false, true))), // fd 1: stdout（可写）
+                Some(Mutex::new(FileHandle::empty(false, true))), // fd 2: stderr（可写）
             ],
             heap_bottom,
             program_brk: heap_bottom,

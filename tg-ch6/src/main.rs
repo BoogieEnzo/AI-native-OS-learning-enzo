@@ -281,8 +281,8 @@ fn kernel_space(layout: tg_linker::KernelLayout, memory: usize, portal: usize) {
         log::info!("{region}");
         use tg_linker::KernelRegionTitle::*;
         let flags = match region.title {
-            Text => "X_RV",       // 代码段：可执行、可读
-            Rodata => "__RV",     // 只读数据：可读
+            Text => "X_RV",        // 代码段：可执行、可读
+            Rodata => "__RV",      // 只读数据：可读
             Data | Boot => "_WRV", // 数据段：可写、可读
         };
         let s = VAddr::<Sv39>::new(region.range.start);
@@ -596,7 +596,9 @@ mod impls {
         ) -> isize {
             let current = PROCESSOR.get_mut().current().unwrap();
             let read_path = |path_ptr: usize| -> Option<String> {
-                let ptr = current.address_space.translate(VAddr::new(path_ptr), READABLE)?;
+                let ptr = current
+                    .address_space
+                    .translate(VAddr::new(path_ptr), READABLE)?;
                 let mut s = String::new();
                 let mut raw_ptr: *const u8 = ptr.as_ptr();
                 loop {
@@ -864,7 +866,10 @@ mod impls {
 
     /// 内存管理系统调用实现
     impl Memory for SyscallContext {
-        /// mmap：在用户地址空间映射匿名页。addr/len 须页对齐；prot 仅允许 1(只读) 或 3(读写)，2(只写) 返回 -1。
+        /// mmap 系统调用：映射匿名内存
+        ///
+        /// 申请 len 字节物理内存，映射到 addr 开始的虚存，属性为 prot。
+        /// 错误：addr 未对齐、prot 无效、地址已映射、物理内存不足。
         fn mmap(
             &self,
             _caller: Caller,
@@ -875,36 +880,103 @@ mod impls {
             _fd: i32,
             _offset: usize,
         ) -> isize {
-            const PAGE_SIZE: usize = 4096;
-            if addr % PAGE_SIZE != 0 || len == 0 {
-                return -1;
-            }
-            let len_aligned = (len + PAGE_SIZE - 1) / PAGE_SIZE * PAGE_SIZE;
-            if prot == 0 || (prot & !3) != 0 {
-                return -1;
-            }
-            let flags = match prot {
-                1 => build_flags("U__RV"),
-                2 => build_flags("U___V"),
-                _ => build_flags("U_WRV"),
+            const PAGE_SIZE: usize = 1 << Sv39::PAGE_BITS;
+            const PAGE_MASK: usize = PAGE_SIZE - 1;
+            /// 仅用于检查页是否已映射（有效即可）
+            const VALID: VmFlags<Sv39> = build_flags("U__V");
+
+            let current = match PROCESSOR.get_mut().current() {
+                Some(p) => p,
+                None => return -1,
             };
-            let current = PROCESSOR.get_mut().current().unwrap();
-            let start = VAddr::<Sv39>::new(addr).floor();
-            let end = VAddr::<Sv39>::new(addr + len_aligned).ceil();
-            current.address_space.map(start..end, &[], 0, flags);
+
+            if addr & PAGE_MASK != 0 {
+                return -1;
+            }
+            if prot & !0b111 != 0 {
+                return -1;
+            }
+            if prot & 0b111 == 0 {
+                return -1;
+            }
+
+            let len = if len == 0 { PAGE_SIZE } else { len };
+            let len_aligned = (len + PAGE_MASK) & !PAGE_MASK;
+
+            let vaddr_start = VAddr::<Sv39>::new(addr);
+            let vaddr_end = VAddr::<Sv39>::new(addr + len_aligned);
+            let vpn_range = vaddr_start.floor()..vaddr_end.ceil();
+
+            if vpn_range.start <= PROTAL_TRANSIT && vpn_range.end > PROTAL_TRANSIT {
+                return -1;
+            }
+
+            for i in vpn_range.start.val()..vpn_range.end.val() {
+                let page_va = i << Sv39::PAGE_BITS;
+                if current
+                    .address_space
+                    .translate::<u8>(VAddr::new(page_va), VALID)
+                    .is_some()
+                {
+                    return -1;
+                }
+            }
+
+            let mut flags_buf = [b'U', b'_', b'_', b'_', b'V'];
+            if prot & 0b100 != 0 {
+                flags_buf[1] = b'X';
+            }
+            if prot & 0b010 != 0 {
+                flags_buf[2] = b'W';
+            }
+            if prot & 0b001 != 0 {
+                flags_buf[3] = b'R';
+            }
+            let flags = match parse_flags(unsafe { core::str::from_utf8_unchecked(&flags_buf) }) {
+                Ok(f) => f,
+                Err(_) => return -1,
+            };
+
+            current.address_space.map(vpn_range, &[], 0, flags);
             0
         }
 
-        /// munmap：解除映射，addr 与 len 须页对齐
+        /// munmap 系统调用：取消内存映射
+        ///
+        /// 取消 [addr, addr + len) 的映射。错误：存在未被映射的虚存。
         fn munmap(&self, _caller: Caller, addr: usize, len: usize) -> isize {
-            const P: usize = 4096;
-            if addr % P != 0 || len % P != 0 {
+            const PAGE_SIZE: usize = 1 << Sv39::PAGE_BITS;
+            const PAGE_MASK: usize = PAGE_SIZE - 1;
+            const VALID: VmFlags<Sv39> = build_flags("U__V");
+
+            let current = match PROCESSOR.get_mut().current() {
+                Some(p) => p,
+                None => return -1,
+            };
+
+            if addr & PAGE_MASK != 0 {
                 return -1;
             }
-            let cur = PROCESSOR.get_mut().current().unwrap();
-            let s = VAddr::<Sv39>::new(addr).floor();
-            let e = VAddr::<Sv39>::new(addr + len).ceil();
-            cur.address_space.unmap(s..e);
+
+            let len = if len == 0 { PAGE_SIZE } else { len };
+            let len_aligned = (len + PAGE_MASK) & !PAGE_MASK;
+
+            let vaddr_start = VAddr::<Sv39>::new(addr);
+            let vaddr_end = VAddr::<Sv39>::new(addr + len_aligned);
+            let vpn_range = vaddr_start.floor()..vaddr_end.ceil();
+
+            for i in vpn_range.start.val()..vpn_range.end.val() {
+                let page_va = i << Sv39::PAGE_BITS;
+                if current
+                    .address_space
+                    .translate::<u8>(VAddr::new(page_va), VALID)
+                    .is_none()
+                {
+                    return -1;
+                }
+            }
+
+            current.address_space.unmap(vpn_range);
             0
         }
     }
